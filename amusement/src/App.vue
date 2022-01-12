@@ -9,6 +9,11 @@ import MyRate from './components/MyRate.vue'
 </template>
 
 <style>
+* {
+  padding: 0;
+  margin: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -16,4 +21,5 @@ import MyRate from './components/MyRate.vue'
   text-align: center;
   color: #2c3e50;
 }
+
 </style>

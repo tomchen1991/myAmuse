@@ -1,5 +1,5 @@
 <template>
-  <div>番剧</div>
+  <div>其它</div>
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
