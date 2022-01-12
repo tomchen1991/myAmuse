@@ -1,5 +1,5 @@
 <template>
-  <div>游戏</div>
+  <div></div>
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";

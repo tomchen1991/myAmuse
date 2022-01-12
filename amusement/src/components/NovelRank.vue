@@ -1,5 +1,5 @@
 <template>
-  <div>小说</div>
+  <div></div>
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";

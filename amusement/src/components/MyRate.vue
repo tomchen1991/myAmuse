@@ -23,6 +23,7 @@
       <NovelRank v-show="selectedAmuse === 'novel'" />
       <OtherRank v-show="selectedAmuse === 'other'" />
     </div>
+    <Subject />
   </div>
   <div class="footer">
     个人链接：
@@ -39,10 +40,11 @@ import MovieRank from "./MovieRank.vue"
 import AnimeRank from "./AnimeRank.vue"
 import NovelRank from "./NovelRank.vue"
 import OtherRank from "./OtherRank.vue"
+import Subject from "./Subject.vue"
 
 export default defineComponent ({
   components:{
-    GameRank,MovieRank,AnimeRank,NovelRank,OtherRank
+    GameRank,MovieRank,AnimeRank,NovelRank,OtherRank,Subject
   },
   data(){
     return {
@@ -66,6 +68,9 @@ export default defineComponent ({
       ],
       selectedAmuse: 'game'
     }
+  },
+  methods:{
+
   }
 })
 </script>
@@ -103,6 +108,17 @@ export default defineComponent ({
         background-color: white;
       }
     }
+  }
+  &>button {
+    float:right;
+    height: 40px;
+    border: none;
+    background-color: white;
+    border-radius: 10px;
+    font-size: 20px;
+    margin-top: 19px;
+    padding: 0 20px;
+    margin-right: 40px;;
   }
 }
 
