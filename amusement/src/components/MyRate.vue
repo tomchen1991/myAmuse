@@ -12,6 +12,7 @@
         <label :class="{selected:selectedAmuse==item.name}" :for="'amuseradio' + item.name">{{item.chinese}}</label>
       </template>
     </div>
+    <button>下载json</button>
   </div>
   <div class="mainBody">
     
