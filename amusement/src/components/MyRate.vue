@@ -15,15 +15,9 @@
     <button>下载json</button>
   </div>
   <div class="mainBody">
-    
     <div>
-      <GameRank v-show="selectedAmuse === 'game'" />
-      <MovieRank v-show="selectedAmuse === 'movie'" />
-      <AnimeRank v-show="selectedAmuse === 'anime'" />
-      <NovelRank v-show="selectedAmuse === 'novel'" />
-      <OtherRank v-show="selectedAmuse === 'other'" />
+      <DataList :dataList="selectedArray"/>
     </div>
-    <Subject />
   </div>
   <div class="footer">
     个人链接：
@@ -35,16 +29,20 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import GameRank from "./GameRank.vue"
-import MovieRank from "./MovieRank.vue"
-import AnimeRank from "./AnimeRank.vue"
-import NovelRank from "./NovelRank.vue"
-import OtherRank from "./OtherRank.vue"
+import DataList from "./DataList.vue"
 import Subject from "./Subject.vue"
+import scoreData from "../assets/data.json"
+export interface Subject {
+  score: number;
+  time: string;
+  name: string;
+  article: string;
+  platform?: string;
+}
 
 export default defineComponent ({
   components:{
-    GameRank,MovieRank,AnimeRank,NovelRank,OtherRank,Subject
+    DataList,Subject
   },
   data(){
     return {
@@ -66,7 +64,16 @@ export default defineComponent ({
           chinese:'其它'
         }
       ],
-      selectedAmuse: 'game'
+      selectedAmuse: 'game',
+    }
+  },
+  computed:{
+    selectedArray(): Subject[]{
+      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){ 
+        return scoreData[this.selectedAmuse]
+      } else {
+        return []
+      }
     }
   },
   methods:{
@@ -124,7 +131,7 @@ export default defineComponent ({
 
 .mainBody {
   height: calc(100vh - 130px);
-  
+  overflow-y: scroll;
 }
 
 .footer{
