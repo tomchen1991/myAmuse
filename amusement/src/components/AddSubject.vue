@@ -5,13 +5,14 @@
     <label>打分</label><input v-model="score" />
     <label>平台</label><input v-model="platform" />
     <textarea v-model="article"></textarea>
-    <button @click="submitSubject">提交</button>
+    <button @click="submitSubject">{{submitText}}</button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent,PropType } from "vue";
 import { Subject } from "./MyRate.vue";
+// import SubjectVue from "./Subject.vue";
 
 export default defineComponent({
   data(){
@@ -23,12 +24,17 @@ export default defineComponent({
       article: '', //小作文
     }
   },
-  emits:['addSubject'],
+  emits:['addSubject','closeModal'],
   props:{
     addType: {
       type: String,
       default: ''
     },
+    editOrAdd: {
+      type: String,
+      default: 'add'
+    },
+    toEditSubject: Object as PropType<Subject>,
   },
   computed:{
     verb():string {
@@ -39,10 +45,26 @@ export default defineComponent({
         case 'novel': return '阅读';break;
         default: return '欣赏';break;
       }
+    },
+    submitText():string {
+      if(this.editOrAdd == 'edit') {
+        return '确认'
+      } else {
+        return '提交'
+      }
     }
   },
   mounted(){
     this.time = this.getTime()
+    if(this.editOrAdd == 'edit' && this.toEditSubject) {
+      this.name = this.toEditSubject.name
+      this.score = this.toEditSubject.score
+      this.article = this.toEditSubject.article
+      this.time = this.toEditSubject.time
+      if(this.addType == 'game') {
+        this.platform = this.toEditSubject.platform || ''
+      }
+    }
   },
   methods:{
     getTime(): string{
@@ -52,17 +74,28 @@ export default defineComponent({
       + (now.getDate()>10?(now.getDate()).toString():'0' + (now.getDate()).toString())
     },
     submitSubject(){
-      if(this.name){
-        const newSubject:Subject = {
-          name: this.name,
-          score: this.score,
-          time: this.time,
-          article: this.article,
+      if(this.editOrAdd == 'add') {
+        if(this.name){
+          const newSubject:Subject = {
+            name: this.name,
+            score: this.score,
+            time: this.time,
+            article: this.article,
+          }
+          if(this.platform) {
+            newSubject.platform = this.platform
+          }
+          this.$emit('addSubject',newSubject)
         }
+      } else if (this.editOrAdd == 'edit' && this.toEditSubject) {
+        this.toEditSubject.name = this.name
+        this.toEditSubject.score = this.score
+        this.toEditSubject.time = this.time
+        this.toEditSubject.article = this.article
         if(this.platform) {
-          newSubject.platform = this.platform
+          this.toEditSubject.platform = this.platform
         }
-        this.$emit('addSubject',newSubject)
+        this.$emit('closeModal')
       }
     }
   }

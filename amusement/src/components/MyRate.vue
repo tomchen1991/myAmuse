@@ -5,7 +5,7 @@
       <template v-for="item in amuseType" :key="item.name">
         <input 
           v-model="selectedAmuse" 
-          :value="item.name" 
+          :value="item.name"
           type="radio" 
           name="amuse"
           :id="'amuseradio' + item.name" />
@@ -15,7 +15,15 @@
     <button @click="downloadJSON">下载json</button>
   </div>
   <div class="mainBody">
-    <DataList :dataList="selectedArray" />
+    <div class="sort">
+      <select v-model="sortType" @change="changeSortType">
+        <option value="timeDescend">时间由新到旧</option>
+        <option value="timeAscend">时间由旧到新</option>
+        <option value="scoreDescend">分数由高到低</option>
+        <option value="scoreAscend">分数由低到高</option>
+      </select>
+    </div>
+    <DataList @editSubject="editSubject" @deleteSubject="deleteSubject" :dataList="selectedArray" />
     <div class="addSubject" @click="openAddModal">+</div>
   </div>
   <div class="footer">
@@ -26,7 +34,7 @@
   </div>
 
   <div class="modal" @click="showModal = false" v-if="showModal">
-    <AddSubject @addSubject="addSubject" :addType="selectedAmuse" />
+    <AddSubject @addSubject="addSubject" @closeModal="changeSortType();showModal = false;" :addType="selectedAmuse" :editOrAdd="editOrAdd" :toEditSubject="toEditSubject"/>
   </div>
 </template>
 
@@ -54,6 +62,12 @@ export default defineComponent ({
     const movie:Subject[] = scoreData.movie
     const novel:Subject[] = scoreData.novel
     const other:Subject[] = scoreData.other
+    let toEditSubject:Subject = {
+      score: 0,
+      time: '',
+      name: '',
+      article: '',
+    }
     return {
       amuseType:[
         {
@@ -79,7 +93,10 @@ export default defineComponent ({
       movie,
       novel,
       other,
+      sortType: 'timeDescend', //默认时间降序
       showModal: false, //遮罩层显示
+      editOrAdd: 'add', //修改还是新增条目
+      toEditSubject
     }
   },
   computed:{
@@ -109,11 +126,46 @@ export default defineComponent ({
       document.body.removeChild(aElement)
     },
     openAddModal(){
+      this.editOrAdd = 'add'
       this.showModal = true
     },
     addSubject(newSubject:Subject){
-      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other')
+      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){
         this[this.selectedAmuse].unshift(newSubject)
+      }
+      this.changeSortType()
+      this.showModal = false
+    },
+    editSubject(oldSubject:Subject){
+      this.editOrAdd = 'edit'
+      this.toEditSubject = oldSubject
+      this.showModal = true
+    },
+    deleteSubject(index:number) {
+      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){
+        this[this.selectedAmuse].splice(index,1)
+      }
+    },
+    changeSortType(){
+      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){
+        if(this.sortType == 'timeAscend') {
+          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+            return parseInt(a.time.replace(/-/g,'')) - parseInt(b.time.replace(/-/g,''))
+          })
+        } else if(this.sortType == 'timeDescend') {
+          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+            return parseInt(b.time.replace(/-/g,'')) - parseInt(a.time.replace(/-/g,''))
+          })
+        } else if(this.sortType == 'scoreDescend') {
+          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+            return b.score-a.score
+          })
+        } else if(this.sortType == 'scoreAscend') {
+          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+            return a.score-b.score
+          })
+        }
+      }
     }
   }
 })
@@ -176,6 +228,11 @@ export default defineComponent ({
 .mainBody {
   height: calc(100vh - 130px);
   overflow-y: scroll;
+  .sort {
+    position: absolute;
+    right: 25px;
+    top: 100px;
+  }
   .addSubject {
     position: fixed;
     right: 40px;

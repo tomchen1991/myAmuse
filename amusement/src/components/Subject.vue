@@ -2,7 +2,8 @@
   <div class="subject">
     <div class="title">
       <div class="name">
-        <span>{{content.name}}</span>
+        <span @click="editSubject">{{content.name}}</span>
+        <span class="delete" @click="deleteSubject">x</span>
         <span class="platform" v-if="content.platform">（{{content.platform}}）</span>
       </div>
       <div class="time">{{content.time}}</div>
@@ -21,6 +22,7 @@ import { defineComponent,PropType } from "vue";
 import { Subject } from "./MyRate.vue";
 
 export default defineComponent({
+  emits:['editSubject','deleteSubject'],
   props:{
     content:{
       type: Object as PropType<Subject>,
@@ -31,12 +33,23 @@ export default defineComponent({
         score: 9,
         article: '好久没看番了，这部真的是相当优秀，值得推荐。最后两话疯狂回收伏线真让人知乎过瘾，结局真凶终于浮出水面也让人相当震惊。毫无疑问是小成本动画的典范之一了',
       }
+    },
+    index:{
+      type: Number,
     }
   },
   data(){
     return {
     }
   },
+  methods:{
+    editSubject(){
+      this.$emit('editSubject',this.content)
+    },
+    deleteSubject(){
+      this.$emit('deleteSubject',this.index)
+    }
+  }
 })
 </script>
 
@@ -57,9 +70,33 @@ export default defineComponent({
     .name {
       color: red;
       font-size: 22px;
+      span:first-child:hover {
+        text-decoration: underline;
+        cursor:pointer;
+      }
+      .delete {
+        position:absolute;
+        text-align: center;
+        height: 20px;
+        width: 20px;
+        border-radius: 10px;
+        line-height: 16px;
+        font-size: 20px;
+        top: -10px;
+        left: -10px;
+        z-index: 2;
+        color: white;
+        background-color: red;
+        cursor: pointer;
+        opacity: 0.05;
+        &:hover {
+          opacity: 1;
+        }
+      }
       .platform {
         font-size: 16px;
         color: green;
+        
       }
     }
     .score {
