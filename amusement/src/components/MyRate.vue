@@ -12,12 +12,11 @@
         <label :class="{selected:selectedAmuse==item.name}" :for="'amuseradio' + item.name">{{item.chinese}}</label>
       </template>
     </div>
-    <button>下载json</button>
+    <button @click="downloadJSON">下载json</button>
   </div>
   <div class="mainBody">
-    <div>
-      <DataList :dataList="selectedArray"/>
-    </div>
+    <DataList :dataList="selectedArray" />
+    <div class="addSubject" @click="openAddModal">+</div>
   </div>
   <div class="footer">
     个人链接：
@@ -25,12 +24,17 @@
     <a target="_blank" href="https://www.imdb.com/user/ur69395828/">IMDB</a>
 
   </div>
+
+  <div class="modal" @click="showModal = false" v-if="showModal">
+    <AddSubject @addSubject="addSubject" :addType="selectedAmuse" />
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import DataList from "./DataList.vue"
 import Subject from "./Subject.vue"
+import AddSubject from './AddSubject.vue'
 import scoreData from "../assets/data.json"
 export interface Subject {
   score: number;
@@ -42,9 +46,14 @@ export interface Subject {
 
 export default defineComponent ({
   components:{
-    DataList,Subject
+    DataList,Subject,AddSubject,
   },
   data(){
+    const game:Subject[] = scoreData.game
+    const anime:Subject[] = scoreData.anime
+    const movie:Subject[] = scoreData.movie
+    const novel:Subject[] = scoreData.novel
+    const other:Subject[] = scoreData.other
     return {
       amuseType:[
         {
@@ -65,19 +74,47 @@ export default defineComponent ({
         }
       ],
       selectedAmuse: 'game',
+      game,
+      anime,
+      movie,
+      novel,
+      other,
+      showModal: false, //遮罩层显示
     }
   },
   computed:{
     selectedArray(): Subject[]{
       if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){ 
-        return scoreData[this.selectedAmuse]
+        return this[this.selectedAmuse]
       } else {
         return []
       }
-    }
+    },
   },
   methods:{
-
+    downloadJSON(){
+      const aElement = document.createElement('a')
+      aElement.download = '我的娱乐.json'
+      aElement.style.display = 'none'
+      const amuseJSON = new Blob([JSON.stringify({
+        game: this.game,
+        anime: this.anime,
+        other: this.other,
+        novel: this.novel,
+        movie: this.movie,
+      })])
+      aElement.href = URL.createObjectURL(amuseJSON)
+      document.body.appendChild(aElement)
+      aElement.click()
+      document.body.removeChild(aElement)
+    },
+    openAddModal(){
+      this.showModal = true
+    },
+    addSubject(newSubject:Subject){
+      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other')
+        this[this.selectedAmuse].unshift(newSubject)
+    }
   }
 })
 </script>
@@ -125,13 +162,40 @@ export default defineComponent ({
     font-size: 20px;
     margin-top: 19px;
     padding: 0 20px;
-    margin-right: 40px;;
+    margin-right: 40px;
+    cursor: pointer;
+    &:hover {
+      background-color: #F5F5F5;
+    }
+    &:active {
+      background-color: #E5E5E5;
+    }
   }
 }
 
 .mainBody {
   height: calc(100vh - 130px);
   overflow-y: scroll;
+  .addSubject {
+    position: fixed;
+    right: 40px;
+    bottom: 100px;
+    height: 60px;
+    line-height: 60px;
+    width: 60px;
+    background-color: #2571bf;
+    border-radius: 30px;
+    font-size: 50px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    &:hover {
+      background-color: #2060b0;
+    }
+    &:active {
+      background-color: #1555a5;
+    }
+  }
 }
 
 .footer{
@@ -142,5 +206,15 @@ export default defineComponent ({
     margin-left: 10px;
     color: #2571bf;
   }
+}
+
+.modal {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background-color: rgba(0,0,0,0.3);
 }
 </style>
