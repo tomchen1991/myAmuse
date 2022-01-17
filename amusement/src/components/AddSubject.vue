@@ -2,7 +2,21 @@
   <div class="addSubject" @click.stop="">
     <label>作品名</label><input v-model="name" />
     <label>{{verb}}时间</label><div class="time">{{time}}</div>
-    <label>打分</label><input v-model="score" />
+    <label>评分</label>
+    <span class="score" @mouseover="changing = true" @mouseout="changing = false">
+      <template v-for="i in 10">
+        <span 
+          @mousemove="mouseScore = i" 
+          @mouseout="mouseScore = score" 
+          :class="{
+            grey:(changing&&i>mouseScore)||(!changing && i>score),
+            yellow:changing&&i<=mouseScore,
+            red:!changing && i<=score
+          }"
+          @click="score = i;changing = false"
+        ></span>
+      </template>
+    </span>
     <label>平台</label><input v-model="platform" />
     <textarea v-model="article"></textarea>
     <button @click="submitSubject">{{submitText}}</button>
@@ -20,8 +34,11 @@ export default defineComponent({
       name: '',//作品名
       platform: '', //平台，仅游戏
       time: '', //游玩时间
-      score: 0, //分数
+      score: 5, //分数
       article: '', //小作文
+      changing: false, //是否在修改分数
+      mouseScore: 0,//鼠标所指的分数
+
     }
   },
   emits:['addSubject','closeModal'],
@@ -118,6 +135,27 @@ export default defineComponent({
     margin-left: 10%;
     font-size: 20px;
     line-height: 30px;
+  }
+  .score {
+    display: inline-block;
+    cursor: pointer;
+    width: 50%;
+    span {
+      display: inline-block;
+      height: 25px;
+      width: 25px;
+      background: transparent url('../assets/3star_2x.png');
+      background-size: 25px 73px;
+    }
+    .grey {
+      background-position: 0 0;
+    }
+    .yellow {
+      background-position: 100% 100%;
+    }
+    .red {
+      background-position: 200% 200%;
+    }
   }
   input,.time {
     font-size: 20px;
