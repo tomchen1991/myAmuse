@@ -43,7 +43,7 @@ import { defineComponent } from "vue";
 import DataList from "./DataList.vue"
 import Subject from "./Subject.vue"
 import AddSubject from './AddSubject.vue'
-import scoreData from "../../public/data.json"
+
 export interface Subject {
   score: number;
   time: string;
@@ -57,11 +57,11 @@ export default defineComponent ({
     DataList,Subject,AddSubject,
   },
   data(){
-    const game:Subject[] = scoreData.game
-    const anime:Subject[] = scoreData.anime
-    const movie:Subject[] = scoreData.movie
-    const novel:Subject[] = scoreData.novel
-    const other:Subject[] = scoreData.other
+    const game:Subject[] = []
+    const anime:Subject[] = []
+    const movie:Subject[] = []
+    const novel:Subject[] = []
+    const other:Subject[] = []
     let toEditSubject:Subject = {
       score: 0,
       time: '',
@@ -98,6 +98,18 @@ export default defineComponent ({
       editOrAdd: 'add', //修改还是新增条目
       toEditSubject
     }
+  },
+  mounted(){
+    //引入data.json
+    fetch('/data.json').then(res=>{
+      return res.json()
+    }).then(res=>{
+      this.anime = res.anime
+      this.game = res.game
+      this.movie = res.movie
+      this.other = res.other
+      this.novel = res.novel
+    })
   },
   computed:{
     selectedArray(): Subject[]{
