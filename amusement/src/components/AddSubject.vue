@@ -19,6 +19,7 @@
     </span>
     <label>平台</label><input v-model="platform" />
     <textarea v-model="article"></textarea>
+    <span class="text">字数：{{article.length}}</span>
     <button @click="submitSubject">{{submitText}}</button>
   </div>
 </template>
@@ -128,6 +129,7 @@ export default defineComponent({
   padding-bottom: 20px;;
   background-color: white;
   text-align: left;
+  position: relative;
   label {
     display: inline-block;
     width: 30%;
@@ -170,6 +172,15 @@ export default defineComponent({
     margin-left: 10%;
     height: 100px;
     width: calc(80% + 2px);
+    resize: none;
+  }
+  .text {
+    position: absolute;
+    color: #BBB;
+    right: 50px;
+    bottom: 60px;
+    font-size: 12px;
+    user-select: none;
   }
   button {
     border: none;
