@@ -101,7 +101,7 @@ export default defineComponent ({
   },
   mounted(){
     //引入data.json
-    fetch('/data.json').then(res=>{
+    fetch('./data.json').then(res=>{
       return res.json()
     }).then(res=>{
       this.anime = res.anime
