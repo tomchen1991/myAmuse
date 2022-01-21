@@ -17,7 +17,7 @@
         ></span>
       </template>
     </span>
-    <label>平台</label><input v-model="platform" />
+    <label v-if="addType=='game'">平台</label><input v-if="addType=='game'" v-model="platform" />
     <textarea v-model="article"></textarea>
     <span class="text">字数：{{article.length}}</span>
     <button @click="submitSubject">{{submitText}}</button>

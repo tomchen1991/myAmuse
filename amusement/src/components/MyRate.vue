@@ -43,7 +43,7 @@ import { defineComponent } from "vue";
 import DataList from "./DataList.vue"
 import Subject from "./Subject.vue"
 import AddSubject from './AddSubject.vue'
-import scoreData from "../assets/data.json"
+import scoreData from "../../public/data.json"
 export interface Subject {
   score: number;
   time: string;
