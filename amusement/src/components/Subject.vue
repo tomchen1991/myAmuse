@@ -111,7 +111,7 @@ export default defineComponent({
         background: transparent url('../assets/rate_star_2x.png');
         background-size: 20px 39px;
         background-repeat: repeat-x;
-        background-position: 100% 100%;
+        background-position: 0 100%;
         .starlight {
           display: block;
           height: 20px;

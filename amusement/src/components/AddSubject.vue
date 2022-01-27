@@ -153,10 +153,10 @@ export default defineComponent({
       background-position: 0 0;
     }
     .yellow {
-      background-position: 100% 100%;
+      background-position: 0 100%;
     }
     .red {
-      background-position: 200% 200%;
+      background-position: 0 200%;
     }
   }
   input,.time {
@@ -173,6 +173,7 @@ export default defineComponent({
     height: 100px;
     width: calc(80% + 2px);
     resize: none;
+    font-size: 16px;
   }
   .text {
     position: absolute;
