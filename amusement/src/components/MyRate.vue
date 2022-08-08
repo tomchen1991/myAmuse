@@ -50,6 +50,7 @@ export interface Subject {
   name: string;
   article: string;
   platform?: string;
+  otherType?: string;
 }
 
 export default defineComponent ({

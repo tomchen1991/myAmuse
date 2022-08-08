@@ -18,6 +18,7 @@
       </template>
     </span>
     <label v-if="addType=='game'">平台</label><input v-if="addType=='game'" v-model="platform" />
+    <label v-if="addType=='other'">类型</label><input v-if="addType=='other'" v-model="otherType" />
     <textarea v-model="article"></textarea>
     <span class="text">字数：{{article.length}}</span>
     <button @click="submitSubject">{{submitText}}</button>
@@ -34,6 +35,7 @@ export default defineComponent({
     return {
       name: '',//作品名
       platform: '', //平台，仅游戏
+      otherType: '', // 作品类型，仅其它
       time: '', //游玩时间
       score: 5, //分数
       article: '', //小作文
@@ -82,6 +84,9 @@ export default defineComponent({
       if(this.addType == 'game') {
         this.platform = this.toEditSubject.platform || ''
       }
+      if(this.addType === 'other') {
+        this.otherType = this.toEditSubject.otherType || ''
+      }
     }
   },
   methods:{
@@ -103,6 +108,9 @@ export default defineComponent({
           if(this.platform) {
             newSubject.platform = this.platform
           }
+          if(this.otherType) {
+            newSubject.otherType = this.otherType
+          }
           this.$emit('addSubject',newSubject)
         }
       } else if (this.editOrAdd == 'edit' && this.toEditSubject) {
@@ -112,6 +120,9 @@ export default defineComponent({
         this.toEditSubject.article = this.article
         if(this.platform) {
           this.toEditSubject.platform = this.platform
+        }
+        if(this.otherType) {
+          this.toEditSubject.otherType = this.otherType
         }
         this.$emit('closeModal')
       }

@@ -5,6 +5,7 @@
         <span @click="editSubject">{{content.name}}</span>
         <span class="delete" @click="deleteSubject">x</span>
         <span class="platform" v-if="content.platform">（{{content.platform}}）</span>
+        <span class="platform" v-if="content.otherType">（{{content.otherType}}）</span>
       </div>
       <div class="time">{{content.time}}</div>
       <div class="score">
