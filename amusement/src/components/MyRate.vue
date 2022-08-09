@@ -63,6 +63,7 @@ export default defineComponent ({
     const movie:Subject[] = []
     const novel:Subject[] = []
     const other:Subject[] = []
+    let selectedAmuse : 'game' | 'movie' | 'anime' | 'novel' | 'other' = 'game'
     let toEditSubject:Subject = {
       score: 0,
       time: '',
@@ -88,7 +89,7 @@ export default defineComponent ({
           chinese:'其它'
         }
       ],
-      selectedAmuse: 'game',
+      selectedAmuse,
       game,
       anime,
       movie,
@@ -114,11 +115,7 @@ export default defineComponent ({
   },
   computed:{
     selectedArray(): Subject[]{
-      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){ 
-        return this[this.selectedAmuse]
-      } else {
-        return []
-      }
+      return this[this.selectedAmuse]
     },
   },
   methods:{
@@ -143,9 +140,7 @@ export default defineComponent ({
       this.showModal = true
     },
     addSubject(newSubject:Subject){
-      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){
-        this[this.selectedAmuse].unshift(newSubject)
-      }
+      this[this.selectedAmuse].unshift(newSubject)
       this.changeSortType()
       this.showModal = false
     },
@@ -155,29 +150,25 @@ export default defineComponent ({
       this.showModal = true
     },
     deleteSubject(index:number) {
-      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){
-        this[this.selectedAmuse].splice(index,1)
-      }
+      this[this.selectedAmuse].splice(index,1)
     },
     changeSortType(){
-      if(this.selectedAmuse == 'game' || this.selectedAmuse == 'anime' || this.selectedAmuse == 'movie' || this.selectedAmuse == 'novel' || this.selectedAmuse == 'other'){
-        if(this.sortType == 'timeAscend') {
-          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-            return parseInt(a.time.replace(/-/g,'')) - parseInt(b.time.replace(/-/g,''))
-          })
-        } else if(this.sortType == 'timeDescend') {
-          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-            return parseInt(b.time.replace(/-/g,'')) - parseInt(a.time.replace(/-/g,''))
-          })
-        } else if(this.sortType == 'scoreDescend') {
-          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-            return b.score-a.score
-          })
-        } else if(this.sortType == 'scoreAscend') {
-          this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-            return a.score-b.score
-          })
-        }
+      if(this.sortType == 'timeAscend') {
+        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+          return parseInt(a.time.replace(/-/g,'')) - parseInt(b.time.replace(/-/g,''))
+        })
+      } else if(this.sortType == 'timeDescend') {
+        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+          return parseInt(b.time.replace(/-/g,'')) - parseInt(a.time.replace(/-/g,''))
+        })
+      } else if(this.sortType == 'scoreDescend') {
+        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+          return b.score-a.score
+        })
+      } else if(this.sortType == 'scoreAscend') {
+        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
+          return a.score-b.score
+        })
       }
     }
   }

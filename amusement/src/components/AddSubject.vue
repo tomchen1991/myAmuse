@@ -1,7 +1,9 @@
 <template>
   <div class="addSubject" @click.stop="">
     <label>作品名</label><input v-model="name" />
-    <label>{{verb}}时间</label><div class="time">{{time}}</div>
+    <label>{{verb}}时间</label><div class="time">
+      <input v-model="time" type="date" />
+    </div>
     <label>评分</label>
     <span class="score" @mouseover="changing = true" @mouseout="changing = false">
       <template v-for="i in 10">
@@ -59,11 +61,11 @@ export default defineComponent({
   computed:{
     verb():string {
       switch(this.addType) {
-        case 'game': return '游玩';break;
+        case 'game': return '游玩';
         case 'movie': 
-        case 'anime': return '观看';break;
-        case 'novel': return '阅读';break;
-        default: return '欣赏';break;
+        case 'anime': return '观看';
+        case 'novel': return '阅读';
+        default: return '欣赏';
       }
     },
     submitText():string {
