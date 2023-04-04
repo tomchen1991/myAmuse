@@ -9,7 +9,7 @@
           type="radio" 
           name="amuse"
           :id="'amuseradio' + item.name" />
-        <label :class="{selected:selectedAmuse==item.name}" :for="'amuseradio' + item.name">{{item.chinese}}</label>
+        <label :class="{selected:selectedAmuse===item.name}" :for="'amuseradio' + item.name">{{item.chinese}}</label>
       </template>
     </div>
     <button @click="downloadJSON">下载json</button>
@@ -23,7 +23,7 @@
         <option value="scoreAscend">分数由低到高</option>
       </select>
     </div>
-    <DataList @editSubject="editSubject" @deleteSubject="deleteSubject" :dataList="selectedArray" />
+    <DataList @edit-subject="getEditSubject" @delete-subject="deleteSubject" :dataList="selectedArray" />
     <div class="addSubject" @click="openAddModal">+</div>
   </div>
   <div class="footer">
@@ -34,145 +34,136 @@
   </div>
 
   <div class="modal" @click="showModal = false" v-if="showModal">
-    <AddSubject @addSubject="addSubject" @closeModal="changeSortType();showModal = false;" :addType="selectedAmuse" :editOrAdd="editOrAdd" :toEditSubject="toEditSubject"/>
+    <AddSubject
+      @add-subject="addSubject"
+      @close-modal="changeSortType();showModal = false;"
+      :add-type="selectedAmuse"
+      :edit-or-add="editOrAdd"
+      :to-edit-subject="toEditSubject"
+      @edit-subject="editSubject"/>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { ref, onMounted, computed } from "vue";
 import DataList from "./DataList.vue"
-import Subject from "./Subject.vue"
 import AddSubject from './AddSubject.vue'
+import { Subject } from "./Subject";
+import type { Ref } from 'vue'
 
-export interface Subject {
-  score: number;
-  time: string;
-  name: string;
-  article: string;
-  platform?: string;
-  otherType?: string;
+
+const a = ref('1')
+interface dataType {
+  game: Subject[]
+  anime: Subject[]
+  movie: Subject[]
+  novel: Subject[]
+  other: Subject[]
 }
 
-export default defineComponent ({
-  components:{
-    DataList,Subject,AddSubject,
-  },
-  data(){
-    const game:Subject[] = []
-    const anime:Subject[] = []
-    const movie:Subject[] = []
-    const novel:Subject[] = []
-    const other:Subject[] = []
-    let selectedAmuse : 'game' | 'movie' | 'anime' | 'novel' | 'other' = 'game'
-    let toEditSubject:Subject = {
-      score: 0,
-      time: '',
-      name: '',
-      article: '',
-    }
-    return {
-      amuseType:[
-        {
-          name:'game',
-          chinese:'游戏'
-        },{
-          name:'movie',
-          chinese:'电影'
-        },{
-          name:'anime',
-          chinese:'番剧'
-        },{
-          name:'novel',
-          chinese:'小说'
-        },{
-          name:'other',
-          chinese:'其它'
-        }
-      ],
-      selectedAmuse,
-      game,
-      anime,
-      movie,
-      novel,
-      other,
-      sortType: 'timeDescend', //默认时间降序
-      showModal: false, //遮罩层显示
-      editOrAdd: 'add', //修改还是新增条目
-      toEditSubject
-    }
-  },
-  mounted(){
-    //引入data.json
-    fetch('./data.json').then(res=>{
-      return res.json()
-    }).then(res=>{
-      this.anime = res.anime
-      this.game = res.game
-      this.movie = res.movie
-      this.other = res.other
-      this.novel = res.novel
-    })
-  },
-  computed:{
-    selectedArray(): Subject[]{
-      return this[this.selectedAmuse]
-    },
-  },
-  methods:{
-    downloadJSON(){
-      const aElement = document.createElement('a')
-      aElement.download = '我的娱乐.json'
-      aElement.style.display = 'none'
-      const amuseJSON = new Blob([JSON.stringify({
-        game: this.game,
-        anime: this.anime,
-        other: this.other,
-        novel: this.novel,
-        movie: this.movie,
-      })])
-      aElement.href = URL.createObjectURL(amuseJSON)
-      document.body.appendChild(aElement)
-      aElement.click()
-      document.body.removeChild(aElement)
-    },
-    openAddModal(){
-      this.editOrAdd = 'add'
-      this.showModal = true
-    },
-    addSubject(newSubject:Subject){
-      this[this.selectedAmuse].unshift(newSubject)
-      this.changeSortType()
-      this.showModal = false
-    },
-    editSubject(oldSubject:Subject){
-      this.editOrAdd = 'edit'
-      this.toEditSubject = oldSubject
-      this.showModal = true
-    },
-    deleteSubject(index:number) {
-      this[this.selectedAmuse].splice(index,1)
-    },
-    changeSortType(){
-      if(this.sortType == 'timeAscend') {
-        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-          return parseInt(a.time.replace(/-/g,'')) - parseInt(b.time.replace(/-/g,''))
-        })
-      } else if(this.sortType == 'timeDescend') {
-        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-          return parseInt(b.time.replace(/-/g,'')) - parseInt(a.time.replace(/-/g,''))
-        })
-      } else if(this.sortType == 'scoreDescend') {
-        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-          return b.score-a.score
-        })
-      } else if(this.sortType == 'scoreAscend') {
-        this[this.selectedAmuse].sort((a:Subject,b:Subject):number=>{
-          return a.score-b.score
-        })
-      }
-    }
-  }
+const dataList = ref<dataType>({
+  game: [],
+  anime: [],
+  movie: [],
+  novel: [],
+  other: []
 })
+onMounted(() => {
+  //引入data.json
+  fetch('./data.json').then(res=>{
+    return res.json()
+  }).then(res=>{
+    dataList.value = res
+  })
+})
+
+const amuseType = ref([
+  {
+    name:'game',
+    chinese:'游戏'
+  },{
+    name:'movie',
+    chinese:'电影'
+  },{
+    name:'anime',
+    chinese:'番剧'
+  },{
+    name:'novel',
+    chinese:'小说'
+  },{
+    name:'other',
+    chinese:'其它'
+  }
+])
+
+const selectedAmuse = ref<keyof dataType>('game')
+const selectedArray = computed(() => {
+  return dataList.value[selectedAmuse.value]
+})
+const downloadJSON = function (){
+  const aElement = document.createElement('a')
+  aElement.download = '我的娱乐.json'
+  aElement.style.display = 'none'
+  const amuseJSON = new Blob([JSON.stringify(dataList.value)])
+  aElement.href = URL.createObjectURL(amuseJSON)
+  document.body.appendChild(aElement)
+  aElement.click()
+  document.body.removeChild(aElement)
+}
+
+const editOrAdd = ref('add') //默认时间降序
+const showModal = ref(false) //遮罩层显示
+const toEditSubject:Ref<Subject> = ref({
+  score: 0,
+  time: '',
+  name: '',
+  article: ''
+})
+const openAddModal = function (){
+  editOrAdd.value = 'add'
+  showModal.value = true
+}
+const addSubject = function (newSubject:Subject){
+  dataList.value[selectedAmuse.value].unshift(newSubject)
+  changeSortType()
+  showModal.value = false
+}
+const getEditSubject = function (oldSubject:Subject){
+  editOrAdd.value = 'edit'
+  toEditSubject.value = oldSubject
+  showModal.value = true
+}
+const editSubject = function (newSubject:Subject) {
+  let key:keyof Subject
+  for (key in newSubject) {
+    if (key === 'platform')
+    toEditSubject.value[key] = newSubject[key]
+  }
+}
+const deleteSubject = function (index:number) {
+  dataList.value[selectedAmuse.value].splice(index,1)
+}
+
+const sortType = ref('timeDescend') //默认时间降序
+const changeSortType = function (){
+  if(sortType.value == 'timeAscend') {
+    dataList.value[selectedAmuse.value].sort((a:Subject,b:Subject):number=>{
+      return parseInt(a.time.replace(/-/g,'')) - parseInt(b.time.replace(/-/g,''))
+    })
+  } else if(sortType.value == 'timeDescend') {
+    dataList.value[selectedAmuse.value].sort((a:Subject,b:Subject):number=>{
+      return parseInt(b.time.replace(/-/g,'')) - parseInt(a.time.replace(/-/g,''))
+    })
+  } else if(sortType.value == 'scoreDescend') {
+    dataList.value[selectedAmuse.value].sort((a:Subject,b:Subject):number=>{
+      return b.score-a.score
+    })
+  } else if(sortType.value == 'scoreAscend') {
+    dataList.value[selectedAmuse.value].sort((a:Subject,b:Subject):number=>{
+      return a.score-b.score
+    })
+  }
+}
 </script>
 
 <style scoped lang="less">

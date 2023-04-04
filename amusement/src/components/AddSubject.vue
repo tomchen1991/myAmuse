@@ -6,7 +6,7 @@
     </div>
     <label>评分</label>
     <span class="score" @mouseover="changing = true" @mouseout="changing = false">
-      <template v-for="i in 10">
+      <template v-for="i in 10" :key="i">
         <span 
           @mousemove="mouseScore = i" 
           @mouseout="mouseScore = score" 
@@ -27,110 +27,108 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent,PropType } from "vue";
-import { Subject } from "./MyRate.vue";
-// import SubjectVue from "./Subject.vue";
+<script lang="ts" setup>
+import { PropType, ref, computed, onMounted } from "vue";
+import { Subject } from "./Subject";
 
-export default defineComponent({
-  data(){
-    return {
-      name: '',//作品名
-      platform: '', //平台，仅游戏
-      otherType: '', // 作品类型，仅其它
-      time: '', //游玩时间
-      score: 5, //分数
-      article: '', //小作文
-      changing: false, //是否在修改分数
-      mouseScore: 0,//鼠标所指的分数
+const emit = defineEmits(['addSubject', 'closeModal', 'editSubject'])
 
+const props = defineProps({
+  addType: {
+    type: String,
+    default: ''
+  },
+  editOrAdd: {
+    type: String,
+    default: 'add'
+  },
+  toEditSubject: Object as PropType<Subject>
+})
+onMounted(() => {
+  if(props.editOrAdd == 'edit' && props.toEditSubject) {
+    name.value = props.toEditSubject.name
+    score.value = props.toEditSubject.score
+    article.value = props.toEditSubject.article
+    time.value = props.toEditSubject.time
+    if(props.addType == 'game') {
+      platform.value = props.toEditSubject.platform || ''
     }
-  },
-  emits:['addSubject','closeModal'],
-  props:{
-    addType: {
-      type: String,
-      default: ''
-    },
-    editOrAdd: {
-      type: String,
-      default: 'add'
-    },
-    toEditSubject: Object as PropType<Subject>,
-  },
-  computed:{
-    verb():string {
-      switch(this.addType) {
-        case 'game': return '游玩';
-        case 'movie': 
-        case 'anime': return '观看';
-        case 'novel': return '阅读';
-        default: return '欣赏';
-      }
-    },
-    submitText():string {
-      if(this.editOrAdd == 'edit') {
-        return '确认'
-      } else {
-        return '提交'
-      }
-    }
-  },
-  mounted(){
-    this.time = this.getTime()
-    if(this.editOrAdd == 'edit' && this.toEditSubject) {
-      this.name = this.toEditSubject.name
-      this.score = this.toEditSubject.score
-      this.article = this.toEditSubject.article
-      this.time = this.toEditSubject.time
-      if(this.addType == 'game') {
-        this.platform = this.toEditSubject.platform || ''
-      }
-      if(this.addType === 'other') {
-        this.otherType = this.toEditSubject.otherType || ''
-      }
-    }
-  },
-  methods:{
-    getTime(): string{
-      const now = new Date()
-      return now.getFullYear().toString() + '-' 
-      + (now.getMonth()+1>10?(now.getMonth()+1).toString():'0' + (now.getMonth()+1).toString()) + '-'
-      + (now.getDate()>10?(now.getDate()).toString():'0' + (now.getDate()).toString())
-    },
-    submitSubject(){
-      if(this.editOrAdd == 'add') {
-        if(this.name){
-          const newSubject:Subject = {
-            name: this.name,
-            score: this.score,
-            time: this.time,
-            article: this.article,
-          }
-          if(this.platform) {
-            newSubject.platform = this.platform
-          }
-          if(this.otherType) {
-            newSubject.otherType = this.otherType
-          }
-          this.$emit('addSubject',newSubject)
-        }
-      } else if (this.editOrAdd == 'edit' && this.toEditSubject) {
-        this.toEditSubject.name = this.name
-        this.toEditSubject.score = this.score
-        this.toEditSubject.time = this.time
-        this.toEditSubject.article = this.article
-        if(this.platform) {
-          this.toEditSubject.platform = this.platform
-        }
-        if(this.otherType) {
-          this.toEditSubject.otherType = this.otherType
-        }
-        this.$emit('closeModal')
-      }
+    if(props.addType === 'other') {
+      otherType.value = props.toEditSubject.otherType || ''
     }
   }
 })
+
+const verb = computed(() :string =>  {
+  switch(props.addType) {
+    case 'game': return '游玩';
+    case 'movie': 
+    case 'anime': return '观看';
+    case 'novel': return '阅读';
+    default: return '欣赏';
+  }
+})
+
+const submitText = computed(():string => {
+  if(props.editOrAdd == 'edit') {
+    return '确认'
+  } else {
+    return '提交'
+  }
+})
+
+const time = ref('') //游玩时间
+const getTime = ():string => {
+  const now = new Date()
+  return now.getFullYear().toString() + '-' 
+  + (now.getMonth()+1>10?(now.getMonth()+1).toString():'0' + (now.getMonth()+1).toString()) + '-'
+  + (now.getDate()>10?(now.getDate()).toString():'0' + (now.getDate()).toString())
+}
+onMounted(() => {
+  time.value = getTime()
+})
+
+const name = ref('') //作品名
+const platform = ref('') //平台，仅游戏
+const otherType = ref('') // 作品类型，仅其它
+const score = ref(5) //分数
+const article = ref('') //小作文
+const changing = ref(false) //是否在修改分数
+const mouseScore = ref(0)//鼠标所指的分数
+const submitSubject = () => {
+  if(props.editOrAdd == 'add') {
+    if(name.value){
+      const newSubject:Subject = {
+        name: name.value,
+        score: score.value,
+        time: time.value,
+        article: article.value,
+      }
+      if(platform.value) {
+        newSubject.platform = platform.value
+      }
+      if(otherType.value) {
+        newSubject.otherType = otherType.value
+      }
+      emit('addSubject',newSubject)
+    }
+  } else if (props.editOrAdd == 'edit' && props.toEditSubject) {
+    const newValue:Subject = {
+      name: name.value,
+      score: score.value,
+      time: time.value,
+      article: article.value
+    }
+    if (platform.value) {
+      newValue.platform = platform.value
+    }
+    if (otherType.value) {
+      newValue.otherType = otherType.value
+    }
+    emit('editSubject', newValue)
+    emit('closeModal')
+  }
+}
 </script>
 
 <style lang="less" scoped>

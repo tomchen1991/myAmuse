@@ -22,5 +22,4 @@ document.title = '非宅兔个人评分'
   text-align: center;
   color: #2c3e50;
 }
-
 </style>
