@@ -49,10 +49,7 @@ import { ref, onMounted, computed } from "vue";
 import DataList from "./DataList.vue"
 import AddSubject from './AddSubject.vue'
 import { Subject } from "./Subject";
-import type { Ref } from 'vue'
 
-
-const a = ref('1')
 interface dataType {
   game: Subject[]
   anime: Subject[]
@@ -97,7 +94,7 @@ const amuseType = ref([
 ])
 
 const selectedAmuse = ref<keyof dataType>('game')
-const selectedArray = computed(() => {
+const selectedArray = computed(():Subject[] => {
   return dataList.value[selectedAmuse.value]
 })
 const downloadJSON = function (){
@@ -113,7 +110,7 @@ const downloadJSON = function (){
 
 const editOrAdd = ref('add') //默认时间降序
 const showModal = ref(false) //遮罩层显示
-const toEditSubject:Ref<Subject> = ref({
+const toEditSubject = ref<Subject>({
   score: 0,
   time: '',
   name: '',
@@ -134,11 +131,7 @@ const getEditSubject = function (oldSubject:Subject){
   showModal.value = true
 }
 const editSubject = function (newSubject:Subject) {
-  let key:keyof Subject
-  for (key in newSubject) {
-    if (key === 'platform')
-    toEditSubject.value[key] = newSubject[key]
-  }
+  Object.assign(toEditSubject.value, newSubject)
 }
 const deleteSubject = function (index:number) {
   dataList.value[selectedAmuse.value].splice(index,1)
