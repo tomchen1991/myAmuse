@@ -26,6 +26,9 @@
     <DataList @edit-subject="getEditSubject" @delete-subject="deleteSubject" :dataList="selectedArray" />
     <div class="addSubject" @click="openAddModal">+</div>
   </div>
+  <input v-model="id" />
+  <button @click="getById">获取</button>
+  <span>{{ getResult }}</span>
   <div class="footer">
     个人链接：
     <a target="_blank" href="https://bgm.tv/user/tomchen1991">bangumi</a>
@@ -49,6 +52,7 @@ import { ref, onMounted, computed } from "vue";
 import DataList from "./DataList.vue"
 import AddSubject from './AddSubject.vue'
 import { Subject } from "./Subject";
+import { getDataById, getAllData } from '../api/score'
 
 interface dataType {
   game: Subject[]
@@ -56,6 +60,17 @@ interface dataType {
   movie: Subject[]
   novel: Subject[]
   other: Subject[]
+}
+
+const getResult = ref('')
+const id = ref('')
+const getById = ()=> {
+  getDataById(id.value)
+  .then((res:any) => {
+    if (res && res.code === 0) {
+      getResult.value = res.data
+    }
+  })
 }
 
 const dataList = ref<dataType>({
@@ -66,11 +81,11 @@ const dataList = ref<dataType>({
   other: []
 })
 onMounted(() => {
-  //引入data.json
-  fetch('./data.json').then(res=>{
-    return res.json()
-  }).then(res=>{
-    dataList.value = res
+  getAllData()
+  .then((res:any) => {
+    if (res.code === 0) {
+      dataList.value = res.data
+    }
   })
 })
 

@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-12 11:19:29
  * @LastEditors: 陈子健
- * @LastEditTime: 2023-04-04 17:06:12
+ * @LastEditTime: 2023-07-20 10:06:45
  * @FilePath: /amusement/vite.config.ts
  */
 import { defineConfig } from 'vite'
@@ -16,5 +16,14 @@ export default defineConfig({
       include: ['src/*.vue', 'src/**/*.vue']
     })
   ],
-  base: './'
+  base: './',
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api/, '')
+      }
+    }
+  }
 })
