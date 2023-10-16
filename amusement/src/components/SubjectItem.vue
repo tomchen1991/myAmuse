@@ -43,7 +43,7 @@ const editSubject = function(){
   emit('editSubject', props.content)
 }
 const deleteSubject = function(){
-  emit('deleteSubject',props.index)
+  emit('deleteSubject', props.content)
 }
 </script>
 

@@ -22,12 +22,13 @@
     <label v-if="addType=='game'">平台</label><input v-if="addType=='game'" v-model="platform" />
     <label v-if="addType=='other'">类型</label><input v-if="addType=='other'" v-model="otherType" />
     <textarea v-model="article"></textarea>
-    <span class="text">字数：{{article.length}}</span>
+    <span class="text">字数：{{article ? article.length : 0}}</span>
     <button @click="submitSubject">{{submitText}}</button>
   </div>
 </template>
 
 <script lang="ts" setup>
+/* eslint-disable no-debugger */
 import { PropType, ref, computed, onMounted } from "vue";
 import { Subject } from "./Subject";
 
@@ -43,20 +44,6 @@ const props = defineProps({
     default: 'add'
   },
   toEditSubject: Object as PropType<Subject>
-})
-onMounted(() => {
-  if(props.editOrAdd == 'edit' && props.toEditSubject) {
-    name.value = props.toEditSubject.name
-    score.value = props.toEditSubject.score
-    article.value = props.toEditSubject.article
-    time.value = props.toEditSubject.time
-    if(props.addType == 'game') {
-      platform.value = props.toEditSubject.platform || ''
-    }
-    if(props.addType === 'other') {
-      otherType.value = props.toEditSubject.otherType || ''
-    }
-  }
 })
 
 const verb = computed(() :string =>  {
@@ -81,11 +68,13 @@ const time = ref('') //游玩时间
 const getTime = ():string => {
   const now = new Date()
   return now.getFullYear().toString() + '-' 
-  + (now.getMonth()+1>10?(now.getMonth()+1).toString():'0' + (now.getMonth()+1).toString()) + '-'
-  + (now.getDate()>10?(now.getDate()).toString():'0' + (now.getDate()).toString())
+  + (now.getMonth() + 1 >= 10 ? (now.getMonth() + 1).toString() :'0' + (now.getMonth()+1).toString()) + '-'
+  + (now.getDate() >= 10 ? (now.getDate()).toString() : '0' + (now.getDate()).toString())
 }
 onMounted(() => {
-  time.value = getTime()
+  if (props.addType === 'add') {
+    time.value = getTime()
+  }
 })
 
 const name = ref('') //作品名
@@ -93,6 +82,22 @@ const platform = ref('') //平台，仅游戏
 const otherType = ref('') // 作品类型，仅其它
 const score = ref(5) //分数
 const article = ref('') //小作文
+
+onMounted(() => {
+  if(props.editOrAdd == 'edit' && props.toEditSubject) {
+    name.value = props.toEditSubject.name
+    score.value = props.toEditSubject.score
+    article.value = props.toEditSubject.article
+    time.value = props.toEditSubject.time
+    if(props.addType == 'game') {
+      platform.value = props.toEditSubject.platform || ''
+    }
+    if(props.addType === 'other') {
+      otherType.value = props.toEditSubject.otherType || ''
+    }
+  }
+})
+
 const changing = ref(false) //是否在修改分数
 const mouseScore = ref(0)//鼠标所指的分数
 const submitSubject = () => {
@@ -133,9 +138,9 @@ const submitSubject = () => {
 
 <style lang="less" scoped>
 .addSubject {
-  width: 500px;
+  width: 800px;
   margin-top: 150px;
-  margin-left: calc(50% - 250px);
+  margin-left: calc(50% - 400px);
   padding-top: 20px;
   padding-bottom: 20px;;
   background-color: white;

@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-03-22 21:13:44
  * @LastEditors: 陈子健
- * @LastEditTime: 2023-04-04 17:55:57
+ * @LastEditTime: 2023-10-16 14:56:31
  * @FilePath: /amusement/src/components/DataList.vue
 -->
 <template>
@@ -25,9 +25,9 @@ const props = defineProps<{
 
 const emit = defineEmits(['editSubject', 'deleteSubject'])
 const editSubject = function(subject:Subject){
-  emit('editSubject',subject)
+  emit('editSubject', subject)
 }
-const deleteSubject = function(index:number){
-  emit('deleteSubject',index)
+const deleteSubject = function(subject:Subject){
+  emit('deleteSubject', subject.id)
 }
 </script>

@@ -26,9 +26,6 @@
     <DataList @edit-subject="getEditSubject" @delete-subject="deleteSubject" :dataList="selectedArray" />
     <div class="addSubject" @click="openAddModal">+</div>
   </div>
-  <input v-model="id" />
-  <button @click="getById">获取</button>
-  <span>{{ getResult }}</span>
   <div class="footer">
     个人链接：
     <a target="_blank" href="https://bgm.tv/user/tomchen1991">bangumi</a>
@@ -38,21 +35,28 @@
 
   <div class="modal" @click="showModal = false" v-if="showModal">
     <AddSubject
+      v-if="!isDelete"
       @add-subject="addSubject"
       @close-modal="changeSortType();showModal = false;"
       :add-type="selectedAmuse"
       :edit-or-add="editOrAdd"
       :to-edit-subject="toEditSubject"
       @edit-subject="editSubject"/>
+    <div @click.stop="" v-else class="delete">
+      <label class="title">确认删除？</label>
+      <br />
+      <button @click="handleDelete" class="primary">确认</button>
+      <button @click="showModal = false">取消</button>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import DataList from "./DataList.vue"
 import AddSubject from './AddSubject.vue'
 import { Subject } from "./Subject";
-import { getDataById, getAllData } from '../api/score'
+import { getAllData, insertData, deleteData, MyResponse } from '../api/score'
 
 interface dataType {
   game: Subject[]
@@ -60,17 +64,6 @@ interface dataType {
   movie: Subject[]
   novel: Subject[]
   other: Subject[]
-}
-
-const getResult = ref('')
-const id = ref('')
-const getById = ()=> {
-  getDataById(id.value)
-  .then((res:any) => {
-    if (res && res.code === 0) {
-      getResult.value = res.data
-    }
-  })
 }
 
 const dataList = ref<dataType>({
@@ -81,13 +74,18 @@ const dataList = ref<dataType>({
   other: []
 })
 onMounted(() => {
+  initData()
+})
+
+const initData = function() {
   getAllData()
-  .then((res:any) => {
+  .then((res:MyResponse<any>) => {
     if (res.code === 0) {
       dataList.value = res.data
+      changeSortType()
     }
   })
-})
+}
 
 const amuseType = ref([
   {
@@ -109,6 +107,9 @@ const amuseType = ref([
 ])
 
 const selectedAmuse = ref<keyof dataType>('game')
+watch(selectedAmuse, newVal => {
+  changeSortType()
+})
 const selectedArray = computed(():Subject[] => {
   return dataList.value[selectedAmuse.value]
 })
@@ -125,6 +126,7 @@ const downloadJSON = function (){
 
 const editOrAdd = ref('add') //默认时间降序
 const showModal = ref(false) //遮罩层显示
+const isDelete = ref(false) // modal中是新增还是删除
 const toEditSubject = ref<Subject>({
   score: 0,
   time: '',
@@ -133,27 +135,69 @@ const toEditSubject = ref<Subject>({
 })
 const openAddModal = function (){
   editOrAdd.value = 'add'
+  isDelete.value = false
   showModal.value = true
 }
 const addSubject = function (newSubject:Subject){
   dataList.value[selectedAmuse.value].unshift(newSubject)
+  insertData({
+    ...newSubject,
+    amusetype: selectedAmuse.value
+  })
+  .then((res:any) => {
+    if (res.code === 0) {
+      console.log('保存成功')
+      initData()
+    }
+  })
+  
   changeSortType()
   showModal.value = false
 }
 const getEditSubject = function (oldSubject:Subject){
   editOrAdd.value = 'edit'
+  isDelete.value = false
   toEditSubject.value = oldSubject
   showModal.value = true
 }
 const editSubject = function (newSubject:Subject) {
   Object.assign(toEditSubject.value, newSubject)
+  insertData({
+    ...toEditSubject.value,
+    amusetype: selectedAmuse.value
+  })
+  .then((res:any) => {
+    if (res.code === 0) {
+      console.log('保存成功')
+      initData()
+    }
+  })
+
+  changeSortType()
+  showModal.value = false
 }
-const deleteSubject = function (index:number) {
-  dataList.value[selectedAmuse.value].splice(index,1)
+
+const toDeleteId = ref('')
+const deleteSubject = function (id:string) {
+  toDeleteId.value = id
+  isDelete.value = true
+  showModal.value = true
+}
+
+const handleDelete = () => {
+  deleteData({
+    id: toDeleteId.value
+  }).then((res:any) => {
+    if (res.code === 0) {
+      console.log('删除成功')
+      showModal.value = false
+      initData()
+    }
+  })
 }
 
 const sortType = ref('timeDescend') //默认时间降序
-const changeSortType = function (){
+function changeSortType (){
   if(sortType.value == 'timeAscend') {
     dataList.value[selectedAmuse.value].sort((a:Subject,b:Subject):number=>{
       return parseInt(a.time.replace(/-/g,'')) - parseInt(b.time.replace(/-/g,''))
@@ -276,5 +320,42 @@ const changeSortType = function (){
   left: 0;
   z-index: 1;
   background-color: rgba(0,0,0,0.3);
+  .delete {
+    width: 800px;
+    margin-top: 150px;
+    margin-left: calc(50% - 400px);
+    padding: 20px;
+    background-color: white;
+    text-align: center;
+    position: relative;
+    .title {
+      display: block;
+      text-align: left;
+    }
+
+    button {
+      height: 30px;
+      border: 1px solid #F5F5F5;
+      background-color: white;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-top: 19px;
+      padding: 0 20px;
+      margin-right: 40px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #F5F5F5;
+      }
+      &.primary {
+        background-color: #1890ff;
+        border: none;
+        color: white;
+        &:hover {
+          background-color: #2060b0;
+        }
+      }
+    }
+  }
 }
 </style>
