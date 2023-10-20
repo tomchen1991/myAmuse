@@ -56,7 +56,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import DataList from "./DataList.vue"
 import AddSubject from './AddSubject.vue'
 import { Subject } from "./Subject";
-import { getAllData, insertData, deleteData, MyResponse } from '../api/score'
+import { getAllData, insertData, deleteData } from '../api/score'
 
 interface dataType {
   game: Subject[]
@@ -79,7 +79,7 @@ onMounted(() => {
 
 const initData = function() {
   getAllData()
-  .then((res:MyResponse<any>) => {
+  .then((res:any) => {
     if (res.code === 0) {
       dataList.value = res.data
       changeSortType()
