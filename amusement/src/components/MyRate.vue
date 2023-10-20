@@ -57,8 +57,9 @@ import DataList from "./DataList.vue"
 import AddSubject from './AddSubject.vue'
 import { Subject } from "./Subject";
 import { getAllData, insertData, deleteData } from '../api/score'
+import { ResData } from "../utils/request";
 
-interface dataType {
+export interface dataType {
   game: Subject[]
   anime: Subject[]
   movie: Subject[]
@@ -79,7 +80,7 @@ onMounted(() => {
 
 const initData = function() {
   getAllData()
-  .then((res:any) => {
+  .then((res:ResData<dataType>) => {
     if (res.code === 0) {
       dataList.value = res.data
       changeSortType()
@@ -144,7 +145,7 @@ const addSubject = function (newSubject:Subject){
     ...newSubject,
     amusetype: selectedAmuse.value
   })
-  .then((res:any) => {
+  .then(res => {
     if (res.code === 0) {
       console.log('保存成功')
       initData()
@@ -166,7 +167,7 @@ const editSubject = function (newSubject:Subject) {
     ...toEditSubject.value,
     amusetype: selectedAmuse.value
   })
-  .then((res:any) => {
+  .then(res => {
     if (res.code === 0) {
       console.log('保存成功')
       initData()
@@ -187,7 +188,7 @@ const deleteSubject = function (id:string) {
 const handleDelete = () => {
   deleteData({
     id: toDeleteId.value
-  }).then((res:any) => {
+  }).then(res => {
     if (res.code === 0) {
       console.log('删除成功')
       showModal.value = false

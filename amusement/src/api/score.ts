@@ -1,9 +1,10 @@
 /*
  * @Date: 2023-07-14 17:53:26
  * @LastEditors: 陈子健
- * @LastEditTime: 2023-10-16 16:31:53
+ * @LastEditTime: 2023-10-20 11:18:58
  * @FilePath: /amusement/src/api/score.ts
  */
+import { dataType } from '../components/MyRate.vue'
 import request from '../utils/request'
 
 export const getDataById = function (id:string) {
@@ -17,7 +18,7 @@ export const getDataById = function (id:string) {
 }
 
 export const getAllData = function () {
-  return request({
+  return request<dataType>({
     method: 'get',
     url: '/user/getAllGames'
   })
